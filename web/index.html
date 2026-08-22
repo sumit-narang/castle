@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Castles of Ireland</title>
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <aside id="sidebar">
+    <header>
+      <h1>🏰 Castles of Ireland</h1>
+      <p id="stats">Loading…</p>
+    </header>
+
+    <div class="controls">
+      <input id="search" type="search" placeholder="Search by name…" autocomplete="off" />
+
+      <fieldset id="category-filters">
+        <legend>Type</legend>
+        <!-- checkboxes injected by app.js -->
+      </fieldset>
+
+      <label class="toggle"><input type="checkbox" id="ruins-only" /> Ruins only</label>
+      <label class="toggle"><input type="checkbox" id="named-only" checked /> Named sites only</label>
+      <label class="toggle"><input type="checkbox" id="article-only" /> With Wikipedia article
+        <span id="article-count" class="badge">0</span>
+      </label>
+      <label class="toggle"><input type="checkbox" id="visited-only" /> Visited only
+        <span id="visited-count" class="badge">0</span>
+      </label>
+    </div>
+
+    <ul id="results" aria-label="Castle list"></ul>
+  </aside>
+
+  <main id="map"></main>
+
+  <div id="token-warning" hidden>
+    <div>
+      <h2>Add your Mapbox token</h2>
+      <p>Open <code>web/config.js</code> and paste your public Mapbox token
+         (starts with <code>pk.</code>) into <code>MAPBOX_TOKEN</code>.</p>
+      <p>The data layer is fully built — it just needs a token to render the basemap.</p>
+    </div>
+  </div>
+
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

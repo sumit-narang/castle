@@ -1,0 +1,13 @@
+# Secrets — never commit your real token
+.env
+
+# Generated from .env by serve.py
+web/config.js
+
+# OS / editor noise
+.DS_Store
+__pycache__/
+*.pyc
+
+# Playwright MCP browser snapshots — capture tile URLs containing the Mapbox token
+.playwright-mcp/
