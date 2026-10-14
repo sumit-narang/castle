@@ -6,6 +6,9 @@
   <title>Castles of Ireland</title>
 
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -42,9 +45,9 @@
           </div>
 
           <div class="switches">
-            <label class="switch-row"><span>Ruins only</span>
+            <label class="switch-row"><span>Ruins only <span id="ruins-count" class="count">0</span></span>
               <input type="checkbox" id="ruins-only" role="switch" /></label>
-            <label class="switch-row"><span>Named sites only</span>
+            <label class="switch-row"><span>Named sites only <span id="named-count" class="count">0</span></span>
               <input type="checkbox" id="named-only" role="switch" checked /></label>
             <label class="switch-row"><span>With Wikipedia article <span id="article-count" class="count">0</span></span>
               <input type="checkbox" id="article-only" role="switch" /></label>

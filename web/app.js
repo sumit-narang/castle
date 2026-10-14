@@ -199,7 +199,7 @@ function initMap() {
   applyFilters();
 }
 
-// ---- Panel chrome: squircle corners, scroll hairline, mobile bottom sheet ----
+// ---- Panel chrome: squircle corners, mobile bottom sheet ----
 const mobileQuery = window.matchMedia("(max-width: 767px)");
 
 function setSheetExpanded(expanded) {
@@ -214,10 +214,6 @@ function initPanel() {
   const sidebar = document.getElementById("sidebar");
   const reclip = squircle(sidebar, () => ({ r: 28, topOnly: mobileQuery.matches }));
   mobileQuery.addEventListener("change", reclip);
-
-  const list = document.getElementById("results");
-  const divider = document.getElementById("list-divider");
-  list.addEventListener("scroll", () => divider.classList.toggle("on", list.scrollTop > 0), { passive: true });
 
   const toggle = document.getElementById("filter-toggle");
   toggle.addEventListener("click", () => {
@@ -305,8 +301,11 @@ async function boot() {
     const res = await fetch(DATA_URL);
     const geojson = await res.json();
     allFeatures = geojson.features;
-    const articleTotal = allFeatures.filter((f) => f.properties.has_article).length;
-    document.getElementById("article-count").textContent = articleTotal;
+    // Each switch shows how many castles in the whole dataset it would keep.
+    const total = (key) => allFeatures.filter((f) => f.properties[key]).length.toLocaleString();
+    document.getElementById("ruins-count").textContent = total("ruin");
+    document.getElementById("named-count").textContent = total("named");
+    document.getElementById("article-count").textContent = total("has_article");
   } catch (err) {
     document.getElementById("stats").textContent =
       "Could not load data — serve this folder over HTTP (see README).";
