@@ -27,6 +27,13 @@ ENDPOINTS = [
 # area-name lookup, which depends on exact relation naming in OSM.
 BBOX = "51.39,-10.7,55.45,-5.35"
 
+
+def in_ireland(lat: float, lon: float) -> bool:
+    """The bbox's north-east corner also clips the tip of Kintyre, Scotland.
+    Everything north of 55.2N and east of 6.0W is Scottish; Ireland's
+    north-east (Rathlin Island, Fair Head) stays west of that line."""
+    return not (lat > 55.2 and lon > -6.0)
+
 # Castle-like features can be tagged a handful of ways in OSM, so we gather all
 # of them and classify later in the normalize stage.
 QUERY = f"""

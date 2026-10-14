@@ -11,3 +11,11 @@ __pycache__/
 
 # Playwright MCP browser snapshots — capture tile URLs containing the Mapbox token
 .playwright-mcp/
+
+# Sticker photos downloaded by the pipeline (Wikimedia photos with per-file
+# licences); re-run `python3 run_pipeline.py --from stickers` to fetch them
+web/stickers/photos/
+
+# Local photo-gap worklists from report_photo_gaps.py
+castles_without_photo.csv
+castles_without_photo.xlsx

@@ -36,8 +36,14 @@ Outputs land in `data/`:
    `description`, and the Wikipedia URL, then pulls each article's lead-paragraph
    `summary` from Wikipedia's REST endpoint. Handles rate-limiting (429) with
    backoff. (Uses the entities/REST APIs, not the often-throttled SPARQL service.)
-4. **`build.py`** — emits `castles.geojson` and `castles.json`, turning Wikidata
-   image references into sized Wikimedia Commons thumbnail URLs.
+4. **`stickers.py`** — downloads a small (250px) copy of each castle's photo
+   into `web/stickers/photos/` for the map's photo stickers. Already-downloaded
+   files are skipped. The folder is git-ignored because the photos carry their
+   own licences, so run `python3 run_pipeline.py --from stickers` after cloning;
+   without it the map falls back to illustrated stickers.
+5. **`build.py`** — emits `castles.geojson` and `castles.json`, turning Wikidata
+   image references into sized Wikimedia Commons thumbnail URLs. Drops the few
+   bounding-box hits that fall in Scotland (the tip of Kintyre).
 
 ## Record schema (`castles.json`)
 
@@ -65,9 +71,14 @@ Outputs land in `data/`:
 ## Web UI (`web/`)
 
 A static, dependency-free Mapbox GL JS frontend that reads `data/castles.geojson`:
-clustered markers coloured by type, type/ruin/search filters, click-for-details
-popups (photo, built date, builder, directions, Wikipedia), and `localStorage`
-"visited" tracking.
+castles drawn as die-cut stickers, type/ruin/search filters, click-for-details
+popups (photo, built date, builder, directions, Wikipedia).
+
+Each castle's marker is its own photo as a tilted sticker with a type-coloured
+dot; clusters show the photo of their most notable castle. Castles without a
+photo use an illustrated sticker per type (`web/stickers/*.svg`, original
+artwork). Any transparent PNG or SVG dropped in with the same name gets the
+same white die-cut border and shadow automatically.
 
 ```bash
 # 1. Put your Mapbox token in .env (copy .env.example first):
@@ -86,7 +97,7 @@ list still works so the data is usable.
 
 ### Filters & details
 - Type chips, **Ruins only**, **Named sites only**, **With Wikipedia article**,
-  **Visited only**, plus name search.
+  plus name search.
 - Popups show the **Wikipedia lead-paragraph summary** (or the short Wikidata
   description), built year, builder, photo, and Directions/Wikipedia/OSM links.
 - A blue **W** badge marks the 304 castles that have an English Wikipedia

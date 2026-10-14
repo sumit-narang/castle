@@ -13,6 +13,9 @@ import json
 import urllib.parse
 from pathlib import Path
 
+from pipeline.overpass import in_ireland
+from pipeline.stickers import sticker_path
+
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 ENRICHED_PATH = DATA_DIR / "enriched.json"
 NORMALIZED_PATH = DATA_DIR / "normalized.json"
@@ -63,6 +66,7 @@ def to_app_record(record: dict) -> dict:
         "smr_url": record.get("smr_url"),           # National Monuments record page
         "summary": record.get("summary"),          # lead paragraph (Wikipedia)
         "thumbnail": record.get("image_url") or commons_thumb(record.get("image")),
+        "sticker": sticker_path(record),                 # local photo for map stickers
         "image_credit": record.get("image_credit"),      # photographer (geo-search)
         "image_license": record.get("image_license"),    # e.g. "CC BY-SA 2.0"
         "image_source": record.get("image_source"),       # how we found the photo
@@ -82,7 +86,9 @@ def run() -> None:
     source = ENRICHED_PATH if ENRICHED_PATH.exists() else NORMALIZED_PATH
     print(f"  source: {source.name}")
     records = json.loads(source.read_text(encoding="utf-8"))
-    app_records = [to_app_record(r) for r in records]
+    app_records = [to_app_record(r) for r in records if in_ireland(r["lat"], r["lon"])]
+    if dropped := len(records) - len(app_records):
+        print(f"  dropped {dropped} outside Ireland")
 
     features = [
         {

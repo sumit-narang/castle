@@ -24,7 +24,7 @@ plus a static Mapbox GL JS frontend.
 4. `build.py` — emit `data/castles.json` (flat array) and `data/castles.geojson`.
 
 **Frontend** (`web/`): clustered markers coloured by type, type/ruin/search
-filters, click-for-details popups, `localStorage` "visited" tracking. `serve.py`
+filters, click-for-details popups. `serve.py`
 reads `.env`, writes `web/config.js` (with the Mapbox token), and serves on
 `http://localhost:8765`.
 

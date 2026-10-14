@@ -166,7 +166,6 @@ fieldset legend {
   text-overflow: ellipsis;
 }
 .result .sub { font-size: 12px; color: var(--muted); }
-.result .visited-dot { margin-left: auto; color: var(--accent); }
 
 .list-more {
   display: flex;
@@ -252,7 +251,7 @@ fieldset legend {
   margin: -4px 0 10px;
 }
 .popup .actions { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
-.popup a, .popup button {
+.popup a {
   font-size: 12.5px;
   text-decoration: none;
   color: var(--text);
@@ -262,7 +261,6 @@ fieldset legend {
   border-radius: 7px;
   cursor: pointer;
 }
-.popup button.visited-btn.on { background: var(--accent); color: #1d1a17; font-weight: 700; }
 
 /* ---- Token warning ---- */
 #token-warning {
