@@ -39,7 +39,18 @@ function matches(props) {
   return true;
 }
 
+// How many filters differ from the defaults, shown on the closed filter button.
+function activeFilterCount() {
+  return (filters.categories.size < CATEGORIES.length) + filters.ruinsOnly +
+    !filters.namedOnly + filters.articleOnly;
+}
+
 function applyFilters() {
+  const count = activeFilterCount();
+  const badge = document.getElementById("filter-count");
+  badge.hidden = count === 0;
+  badge.textContent = count;
+
   const filtered = allFeatures.filter((f) => matches(f.properties));
   updateMapData(filtered);
   renderList(filtered);
@@ -57,15 +68,21 @@ let listRendered = 0;   // how many of them are currently in the DOM
 function resultRow(f) {
   const p = f.properties;
   const li = document.createElement("li");
-  li.className = "result";
+  li.className = p.id === selectedId ? "result selected" : "result";
+  li.dataset.id = p.id;
   const built = p.built_year ? ` · ${p.built_year}` : "";
+  // The small local sticker photo loads far faster than the 600px Commons thumbnail.
+  const photo = p.sticker || p.thumbnail;
   li.innerHTML = `
-    ${p.thumbnail ? `<img class="thumb" loading="lazy" src="${p.thumbnail}" alt="">` : `<div class="thumb"></div>`}
+    ${photo
+      ? `<img class="thumb" loading="lazy" src="${photo}" alt="">`
+      : `<div class="thumb">${escapeHtml(p.name.charAt(0))}</div>`}
     <div class="meta">
-      <div class="name">${escapeHtml(p.name)}${p.has_article ? ` <span class="wiki-badge" title="Has a Wikipedia article">W</span>` : ""}</div>
-      <div class="sub">${p.category_label}${p.ruin ? " · ruin" : ""}${built}</div>
+      <p class="name">${escapeHtml(p.name)}${p.has_article ? `<span class="wiki-badge" title="Has a Wikipedia article">W</span>` : ""}</p>
+      <p class="sub">${p.category_label}${p.ruin ? " · ruin" : ""}${built}</p>
     </div>`;
   li.addEventListener("click", () => {
+    if (p.id === selectedId) return activePopup?.remove();  // click again to deselect
     map.flyTo({ center: f.geometry.coordinates, zoom: 14 });
     openPopup(f);
   });
@@ -104,6 +121,21 @@ function renderList(features) {
   appendPage();
 }
 
+// ---- Selection (the open popup's castle is highlighted in the list) ----
+let selectedId = null;
+let activePopup = null;
+
+function setSelected(id) {
+  selectedId = id;
+  const list = document.getElementById("results");
+  list.querySelector(".result.selected")?.classList.remove("selected");
+  if (id == null) return;
+  const row = list.querySelector(`.result[data-id="${CSS.escape(id)}"]`);
+  row?.classList.add("selected");
+  row?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  setSheetExpanded(false);  // on mobile, get the sheet out of the way of the popup
+}
+
 // ---- Popups ----
 function openPopup(feature) {
   const p = feature.properties;
@@ -135,10 +167,18 @@ function openPopup(feature) {
       </div>
     </div>`;
 
-  new mapboxgl.Popup({ offset: 14, maxWidth: "260px" })
+  activePopup?.remove();  // one castle open at a time
+  const popup = new mapboxgl.Popup({ offset: 14, maxWidth: "260px" })
     .setLngLat(feature.geometry.coordinates)
     .setHTML(html)
     .addTo(map);
+  popup.on("close", () => {
+    if (activePopup !== popup) return;
+    activePopup = null;
+    setSelected(null);
+  });
+  activePopup = popup;
+  setSelected(p.id);
 }
 
 // ---- Map setup ----
@@ -151,15 +191,50 @@ function initMap() {
     center: [-8.0, 53.4], // centre of Ireland
     zoom: 6,
   });
+  // Keep the map's centre (and flyTo targets) clear of the floating panel.
+  if (!mobileQuery.matches) map.setPadding({ left: 18 * 16 + 12 });
   map.addControl(new mapboxgl.NavigationControl(), "top-right");
   map.addControl(new mapboxgl.GeolocateControl({ trackUserLocation: true }), "top-right");
   initMapLayers();
   applyFilters();
 }
 
+// ---- Panel chrome: squircle corners, scroll hairline, mobile bottom sheet ----
+const mobileQuery = window.matchMedia("(max-width: 767px)");
+
+function setSheetExpanded(expanded) {
+  const sidebar = document.getElementById("sidebar");
+  const handle = document.getElementById("sheet-handle");
+  sidebar.classList.toggle("expanded", expanded);
+  handle.setAttribute("aria-expanded", String(expanded));
+  handle.querySelector(".hint").textContent = expanded ? "Tap to collapse" : "Tap to expand";
+}
+
+function initPanel() {
+  const sidebar = document.getElementById("sidebar");
+  const reclip = squircle(sidebar, () => ({ r: 28, topOnly: mobileQuery.matches }));
+  mobileQuery.addEventListener("change", reclip);
+
+  const list = document.getElementById("results");
+  const divider = document.getElementById("list-divider");
+  list.addEventListener("scroll", () => divider.classList.toggle("on", list.scrollTop > 0), { passive: true });
+
+  const toggle = document.getElementById("filter-toggle");
+  toggle.addEventListener("click", () => {
+    const open = document.getElementById("filter-panel").classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  document.getElementById("sheet-handle").addEventListener("click", () =>
+    setSheetExpanded(!sidebar.classList.contains("expanded")));
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") activePopup?.remove();
+  });
+}
+
 // ---- Controls wiring ----
 function buildControls() {
-  const fieldset = document.getElementById("category-filters");
+  const chips = document.getElementById("category-filters");
   for (const c of CATEGORIES) {
     const label = document.createElement("label");
     label.className = "chip";
@@ -169,7 +244,7 @@ function buildControls() {
       e.target.checked ? filters.categories.add(c.id) : filters.categories.delete(c.id);
       applyFilters();
     });
-    fieldset.appendChild(label);
+    chips.appendChild(label);
   }
 
   const bind = (id, key) =>
@@ -223,6 +298,7 @@ async function boot() {
     document.getElementById("token-warning").hidden = false;
   }
 
+  initPanel();
   buildControls();
 
   try {

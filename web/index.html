@@ -9,31 +9,53 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main id="map"></main>
+
   <aside id="sidebar">
-    <header>
-      <h1>🏰 Castles of Ireland</h1>
+    <!-- Mobile only: the panel becomes a bottom sheet with a tap-to-expand handle -->
+    <button id="sheet-handle" type="button" aria-expanded="false">
+      <span class="grip"></span>
+      <span class="hint">Tap to expand</span>
+    </button>
+
+    <header class="panel-head">
+      <h1>Castles of Ireland</h1>
       <p id="stats">Loading…</p>
+
+      <div class="search-row">
+        <input id="search" type="search" placeholder="Search by name" autocomplete="off" />
+        <button id="filter-toggle" type="button" aria-expanded="false" aria-controls="filter-panel"
+                aria-label="Filters" title="Filters">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+            <path d="M3 5.5h14M5.5 10h9M8 14.5h4" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span id="filter-count" class="filter-count" hidden></span>
+        </button>
+      </div>
+
+      <!-- Collapsible: grid-rows 0fr -> 1fr animates to the content's natural height -->
+      <div id="filter-panel" class="filter-panel">
+        <div class="filter-panel-inner">
+          <div id="category-filters" class="chips" role="group" aria-label="Castle type">
+            <!-- chips injected by app.js -->
+          </div>
+
+          <div class="switches">
+            <label class="switch-row"><span>Ruins only</span>
+              <input type="checkbox" id="ruins-only" role="switch" /></label>
+            <label class="switch-row"><span>Named sites only</span>
+              <input type="checkbox" id="named-only" role="switch" checked /></label>
+            <label class="switch-row"><span>With Wikipedia article <span id="article-count" class="count">0</span></span>
+              <input type="checkbox" id="article-only" role="switch" /></label>
+          </div>
+        </div>
+      </div>
     </header>
 
-    <div class="controls">
-      <input id="search" type="search" placeholder="Search by name…" autocomplete="off" />
-
-      <fieldset id="category-filters">
-        <legend>Type</legend>
-        <!-- checkboxes injected by app.js -->
-      </fieldset>
-
-      <label class="toggle"><input type="checkbox" id="ruins-only" /> Ruins only</label>
-      <label class="toggle"><input type="checkbox" id="named-only" checked /> Named sites only</label>
-      <label class="toggle"><input type="checkbox" id="article-only" /> With Wikipedia article
-        <span id="article-count" class="badge">0</span>
-      </label>
-    </div>
-
-    <ul id="results" aria-label="Castle list"></ul>
+    <div id="list-divider"></div>
+    <ul id="results" class="scrollbar-subtle" aria-label="Castle list"></ul>
   </aside>
-
-  <main id="map"></main>
 
   <div id="token-warning" hidden>
     <div>
@@ -46,6 +68,7 @@
 
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
   <script src="config.js"></script>
+  <script src="squircle.js"></script>
   <script src="map-stickers.js"></script>
   <script src="app.js"></script>
 </body>
